@@ -28,6 +28,14 @@ public abstract class Block {
 		  right = r;
 		  bottom = b;
 	  }
+	  
+	  public Sides(Sides other) {
+		  left = other.left;
+		  top = other.top;
+		  right = other.right;
+		  bottom = other.bottom;
+	  }
+	  
 	};
 	
 	double x = 0;
@@ -170,4 +178,21 @@ public abstract class Block {
 		moveTo(other.x - width, other.y);
 	}
 
+	public abstract Block deepCopy();
+	
+	public Block deepCopy(Block block) {
+		block.x = x;
+		block.y = y;
+		block.width = width;
+		block.height = height;
+		block.hasBorder = hasBorder;
+		block.hasFocus = hasFocus;
+		block.margins = new Sides(margins);
+		block.border = new Sides(border);
+		block.padding = new Sides(padding);
+		for(BlockEventHandler handler : handlers) {
+			block.handlers.add(handler);
+		}
+		return block;
+	}
 }

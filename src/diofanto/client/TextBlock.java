@@ -50,4 +50,9 @@ public class TextBlock extends Block {
 		System.out.println("'"+text+"' was clicked");
 	}
 	
+	public TextBlock deepCopy() {
+		TextBlock block = new TextBlock(text);
+		return (TextBlock)deepCopy(block);
+	}
+	
 }
