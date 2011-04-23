@@ -15,12 +15,14 @@ public class MoveTermRightToLeft extends Command {
 	public void apply() {
 		term = eq.right.remove(idx);
 		eq.left.add(term);
+		term.toggleSign();
 	}
 
 	@Override
 	public void undo() {
 		eq.left.remove(eq.right.size() - 1);
 		eq.right.add(idx, term);
+		term.toggleSign();
 	}
 
 }

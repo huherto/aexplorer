@@ -51,7 +51,10 @@ public class Equation implements BlockEventHandler {
 		container.removeAll();
 		for(Term  term : left) {
 			if (!container.blocks.isEmpty()) {
-				container.add(new TextBlock("+"));
+				if (term.negative)
+					container.add(new TextBlock("-"));
+				else 
+					container.add(new TextBlock("+"));					
 			}
 			container.add(term.block);				
 		}
@@ -63,8 +66,11 @@ public class Equation implements BlockEventHandler {
 		container.add(equal);
 		int count = 0;
 		for(Term  term : right) {
-			if (count != 0) {
-				container.add(new TextBlock("+"));
+			if (count > 0) {
+				if (term.negative)
+					container.add(new TextBlock("-"));
+				else 
+					container.add(new TextBlock("+"));					
 			}
 			container.add(term.block);
 			count++;
