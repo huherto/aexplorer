@@ -2,8 +2,6 @@ package diofanto.client;
 
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
@@ -20,7 +18,6 @@ public class DiofantoCanvas {
 	
 	Container root = new Container();
 	
-//	List<Block> blocks = new ArrayList<Block>();
 	Block focused = null;
 	Block mouseDownOn = null;
 	
@@ -33,19 +30,6 @@ public class DiofantoCanvas {
 		canvas.setHeight(canvasHeight + "px");
 		canvas.setCoordinateSpaceHeight(canvasHeight);
 		
-		canvas.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Block block = root.findBlock(event.getX(), event.getY());
-				if (block != null) {
-					block.clicked();
-					setFocus(block);
-				}
-				displayAll();
-			}
-
-		});
-		
 		canvas.addMouseDownHandler(new MouseDownHandler() {
 			
 			@Override
@@ -53,26 +37,30 @@ public class DiofantoCanvas {
 				System.out.println("Mouse down");
 				mouseDownOn = root.findBlock(event.getX(), event.getY());
 				if (mouseDownOn != null) {
-					//setFocus(mouseDownOn);
-				}
-			}
-		});
-		
-		canvas.addMouseMoveHandler(new MouseMoveHandler() {
-			
-			@Override
-			public void onMouseMove(MouseMoveEvent event) {
-				if (mouseDownOn != null) {
-					// Center on the mouse position.
-					double x = event.getX() - mouseDownOn.width/2;
-					double y = event.getY() - mouseDownOn.height/2;
-					mouseDownOn.moveTo(x, y);
+					setFocus(mouseDownOn);
 					displayAll();
 				}
 			}
 		});
 		
 		final DiofantoCanvas parent = this;
+		
+		canvas.addMouseMoveHandler(new MouseMoveHandler() {
+			
+			@Override
+			public void onMouseMove(MouseMoveEvent event) {
+				if (mouseDownOn != null) {
+					
+					mouseDownOn.onBeforeMove(parent);
+					// Center on the mouse position.
+					double x = event.getX() - mouseDownOn.width/2;
+					double y = event.getY() - mouseDownOn.height/2;
+					mouseDownOn.moveTo(x, y);
+					mouseDownOn.onMove(parent);
+				}
+			}
+		});
+		
 		canvas.addMouseUpHandler(new MouseUpHandler() {
 			
 			@Override
@@ -108,7 +96,6 @@ public class DiofantoCanvas {
 		Context2d c2d = c2d();
 		c2d.setFillStyle("#FFF");
 		c2d.fillRect(x, y, width, height);
-		//c2d.fill();
 	}
 
 	public void resizeAll() {
@@ -117,7 +104,12 @@ public class DiofantoCanvas {
 	
 	public void displayAll() {
 		clear();
-		root.display(c2d());
+		Context2d c2d = c2d();
+		root.display(c2d);
+	}
+	
+	public void displayDropTarget(DropTarget dropTarget) {
+		dropTarget.display(c2d());
 	}
 
 	public void add(Block block) {

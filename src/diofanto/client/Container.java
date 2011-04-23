@@ -96,13 +96,4 @@ public class Container extends Block {
 		}
 	}
 
-	@Override
-	public Container deepCopy() {
-		Container cont = new Container();
-		for(Block block : blocks) {
-			cont.blocks.add(block.deepCopy());
-		}
-		return (Container)deepCopy(cont);
-	}
-	
 }

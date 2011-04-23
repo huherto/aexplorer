@@ -1,12 +1,12 @@
 package diofanto.client;
 
-class MoveLeftTerm extends Command {
+class MoveRightTerm extends Command {
 	
 	int fromIdx;
 	int toIdx;
 	Term term;
 
-	public MoveLeftTerm(Equation eq, int fromIdx, int toIdx) {
+	public MoveRightTerm(Equation eq, int fromIdx, int toIdx) {
 		super(eq);
 		this.fromIdx = fromIdx;
 		this.toIdx = toIdx;
@@ -14,15 +14,15 @@ class MoveLeftTerm extends Command {
 
 	@Override
 	public void apply() {
-		term = eq.left.remove(fromIdx);
-		eq.left.add(toIdx, term);
+		term = eq.right.remove(fromIdx);
+		eq.right.add(toIdx, term);
 	}
 
 	@Override
 	public void undo() {
-		if (eq.left.remove(toIdx) != term) {
+		if (eq.right.remove(toIdx) != term) {
 			throw new IllegalStateException("");
 		}
-		eq.left.add(fromIdx, term);
+		eq.right.add(fromIdx, term);
 	}
 }

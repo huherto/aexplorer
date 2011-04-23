@@ -8,10 +8,4 @@ public class Term {
 		block = new TextBlock(text);
 	}
 	
-	public Term deepCopy() {
-		Term term = new Term(text);
-		term.block = block.deepCopy();
-		return term;
-	}
-	
 }

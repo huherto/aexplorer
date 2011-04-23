@@ -153,15 +153,25 @@ public abstract class Block {
 		hasFocus = focus;
 	}
 	
-	public void addDragDropHandler(DragDropHanlder handler) {
+	public void addHandler(BlockEventHandler handler) {
 		handlers.add(handler);
+	}
+	
+	public void onBeforeMove(DiofantoCanvas canvas) {
+		for(BlockEventHandler handler : handlers) {
+			handler.onBeforeMove(this, canvas);
+		}
+	}
+	
+	public void onMove(DiofantoCanvas canvas) {
+		for(BlockEventHandler handler : handlers) {
+			handler.onMove(this, canvas);
+		}
 	}
 	
 	public void onDrop(DiofantoCanvas canvas) {
 		for(BlockEventHandler handler : handlers) {
-			if (handler instanceof DragDropHanlder) {
-				((DragDropHanlder) handler).onDrop(this, canvas);
-			}
+			handler.onDrop(this, canvas);
 		}
 	}
 
@@ -177,22 +187,53 @@ public abstract class Block {
 	public void moveLeftTo(Block other) {
 		moveTo(other.x - width, other.y);
 	}
-
-	public abstract Block deepCopy();
 	
-	public Block deepCopy(Block block) {
-		block.x = x;
-		block.y = y;
-		block.width = width;
-		block.height = height;
-		block.hasBorder = hasBorder;
-		block.hasFocus = hasFocus;
-		block.margins = new Sides(margins);
-		block.border = new Sides(border);
-		block.padding = new Sides(padding);
-		for(BlockEventHandler handler : handlers) {
-			block.handlers.add(handler);
-		}
-		return block;
+	static private double distance(double x1, double y1, double x2, double y2) {
+		double distX = Math.abs(x1 - x2);
+		double distY = Math.abs(y1 - y2);
+		return Math.sqrt((distX * distX) + (distY * distY));
 	}
+	
+	public double edgeDistance(Block block) {
+		int col = 1;
+		if (x > (block.x + block.width)) {
+			col = 0;
+		}
+		else if ((x + width) <  block.x) {
+			col = 2;
+		}
+		
+		int row = 1;
+		if (y > (block.y + block.height)) {
+			row = 0;
+		}
+		else if ((y + height) < block.y) {
+			row = 2;
+		}
+
+		int cuadrant = row * 3 + col;
+		switch(cuadrant) {
+		case 0: return distance(x, y, block.x + block.width, block.y + block.height);
+		case 1: return y - (block.y + block.height);
+		case 2: return distance(x + width, y, block.x, block.y + block.height);
+		case 3: return x - (block.x + block.width);
+		case 4: return 0;
+		case 5: return block.x - (x + width);
+		case 6: return distance(x, y + height, block.x + block.width, block.y);
+		case 7: return block.y - (y + height);
+		case 8: return distance(x + width, y + height, block.x, block.y);
+		}
+		throw new RuntimeException();
+	}
+	
+	double centerDistance(Block block) {
+		double centerX = x + width/2;
+		double centerY = y + height/2;
+		
+		double blockCenterX = block.x + block.width/2;
+		double blockCenterY = block.y + block.height/2;
+		
+		return distance(centerX, centerY, blockCenterX, blockCenterY);
+	}
+
 }

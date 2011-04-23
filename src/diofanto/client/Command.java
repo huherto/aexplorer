@@ -5,7 +5,6 @@ abstract class Command {
 	Command(Equation eq) {
 		this.eq = eq;
 	}
-	public abstract double calcDistance(double x, double y);
 	public abstract void apply();
 	public abstract void undo();
 }
