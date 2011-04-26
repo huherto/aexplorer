@@ -140,27 +140,61 @@ public class Equation implements BlockEventHandler {
 		dropTargets = new HashSet<DropTarget>();
 		int idx = left.indexOf(term);
 		for(int i = 0; i < left.size(); i++) {
-			Command cmd = new MoveLeftTerm(this, idx, i);
+			Command cmd = new MoveTerm(this, left, idx, left, i);
 			DropTarget target = new DropTarget(cmd);
-			target.moveLeftTo(left.get(i).block);
+			Block block = left.get(i).block;
+			target.moveLeftTo(block);
 			dropTargets.add(target);
 		}
-		Command cmd = new MoveTermLeftToRight(this, idx);
-		DropTarget target = new DropTarget(cmd);
-		target.moveRightTo(equal);
-		dropTargets.add(target);
+		if (left.size() > 0) {
+			Command cmd = new MoveTerm(this, left, idx, left, left.size());
+			DropTarget target = new DropTarget(cmd);
+			Block block = left.get(left.size() - 1).block;
+			target.moveLeftTo(block);
+			dropTargets.add(target);			
+		}
+		else {
+			Command cmd = new MoveTerm(this, left, idx, left, left.size());
+			DropTarget target = new DropTarget(cmd);
+			target.moveLeftTo(equal);
+			dropTargets.add(target);
+		}
+		for(int i = 0; i < right.size(); i++) {
+			Command cmd = new MoveTerm(this, left, idx, right, i);
+			DropTarget target = new DropTarget(cmd);
+			Block block = right.get(i).block;
+			target.moveLeftTo(block);
+			dropTargets.add(target);
+		}
+		if (right.size() > 0) {
+			Command cmd = new MoveTerm(this, left, idx, right, right.size());
+			DropTarget target = new DropTarget(cmd);
+			Block block = right.get(right.size() - 1).block;
+			target.moveRightTo(block);
+			dropTargets.add(target);			
+		}
+		else {
+			Command cmd = new MoveTerm(this, left, idx, right, 0);
+			DropTarget target = new DropTarget(cmd);
+			target.moveRightTo(equal);
+			dropTargets.add(target);			
+		}
 	}
 	
 	private void dropTargetsForRightMember(Term term) {
 		dropTargets = new HashSet<DropTarget>();
 		int idx = right.indexOf(term);
 		for(int i = 0; i < right.size(); i++) {
-			Command cmd = new MoveRightTerm(this, idx, i);
+			Command cmd = new MoveTerm(this, right, idx, right, i);
 			DropTarget target = new DropTarget(cmd);
-			target.moveLeftTo(right.get(i).block);
+			Block block = right.get(i).block;
+			if (i <= idx)
+				target.moveLeftTo(block);
+			else
+				target.moveRightTo(block);
 			dropTargets.add(target);
 		}
-		Command cmd = new MoveTermRightToLeft(this, idx);
+		Command cmd = new MoveTerm(this, right, idx, left, 0);
 		DropTarget target = new DropTarget(cmd);
 		target.moveLeftTo(equal);
 		dropTargets.add(target);

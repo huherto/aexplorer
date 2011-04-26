@@ -11,7 +11,7 @@ public class TestCommand extends TestCase {
 		eq.addLeft(new Term("b"));
 		eq.addLeft(new Term("c"));
 		
-		Command cmd = new MoveLeftTerm(eq, 0, 0);
+		Command cmd = new MoveTerm(eq, eq.left, 0, eq.left, 0);
 		cmd.apply();
 		assertEquals("a", eq.left.get(0).text);
 		assertEquals("b", eq.left.get(1).text);
@@ -21,7 +21,7 @@ public class TestCommand extends TestCase {
 		assertEquals("b", eq.left.get(1).text);
 		assertEquals("c", eq.left.get(2).text);
 		
-		cmd = new MoveLeftTerm(eq, 0, 1);
+		cmd = new MoveTerm(eq, eq.left, 0, eq.left, 1);
 		cmd.apply();
 		assertEquals("b", eq.left.get(0).text);
 		assertEquals("a", eq.left.get(1).text);
@@ -31,7 +31,7 @@ public class TestCommand extends TestCase {
 		assertEquals("b", eq.left.get(1).text);
 		assertEquals("c", eq.left.get(2).text);
 
-		cmd = new MoveLeftTerm(eq, 0, 2);
+		cmd = new MoveTerm(eq, eq.left, 0, eq.left, 2);
 		cmd.apply();
 		assertEquals("b", eq.left.get(0).text);
 		assertEquals("c", eq.left.get(1).text);
@@ -41,7 +41,7 @@ public class TestCommand extends TestCase {
 		assertEquals("b", eq.left.get(1).text);
 		assertEquals("c", eq.left.get(2).text);
 
-		cmd = new MoveLeftTerm(eq, 1, 0);
+		cmd = new MoveTerm(eq, eq.left, 1, eq.left, 0);
 		cmd.apply();
 		assertEquals("b", eq.left.get(0).text);
 		assertEquals("a", eq.left.get(1).text);
@@ -51,7 +51,7 @@ public class TestCommand extends TestCase {
 		assertEquals("b", eq.left.get(1).text);
 		assertEquals("c", eq.left.get(2).text);
 		
-		cmd = new MoveLeftTerm(eq, 1, 1);
+		cmd = new MoveTerm(eq, eq.left, 1, eq.left, 1);
 		cmd.apply();
 		assertEquals("a", eq.left.get(0).text);
 		assertEquals("b", eq.left.get(1).text);
@@ -61,7 +61,7 @@ public class TestCommand extends TestCase {
 		assertEquals("b", eq.left.get(1).text);
 		assertEquals("c", eq.left.get(2).text);
 
-		cmd = new MoveLeftTerm(eq, 1, 2);
+		cmd = new MoveTerm(eq, eq.left, 1, eq.left, 2);
 		cmd.apply();
 		assertEquals("a", eq.left.get(0).text);
 		assertEquals("c", eq.left.get(1).text);
@@ -71,7 +71,7 @@ public class TestCommand extends TestCase {
 		assertEquals("b", eq.left.get(1).text);
 		assertEquals("c", eq.left.get(2).text);
 
-		cmd = new MoveLeftTerm(eq, 2, 0);
+		cmd = new MoveTerm(eq, eq.left, 2, eq.left, 0);
 		cmd.apply();
 		assertEquals("c", eq.left.get(0).text);
 		assertEquals("a", eq.left.get(1).text);
@@ -81,7 +81,7 @@ public class TestCommand extends TestCase {
 		assertEquals("b", eq.left.get(1).text);
 		assertEquals("c", eq.left.get(2).text);
 
-		cmd = new MoveLeftTerm(eq, 2, 1);
+		cmd = new MoveTerm(eq, eq.left, 2, eq.left, 1);
 		cmd.apply();
 		assertEquals("a", eq.left.get(0).text);
 		assertEquals("c", eq.left.get(1).text);
@@ -91,7 +91,7 @@ public class TestCommand extends TestCase {
 		assertEquals("b", eq.left.get(1).text);
 		assertEquals("c", eq.left.get(2).text);
 
-		cmd = new MoveLeftTerm(eq, 2, 2);
+		cmd = new MoveTerm(eq, eq.left, 2, eq.left, 2);
 		cmd.apply();
 		assertEquals("a", eq.left.get(0).text);
 		assertEquals("b", eq.left.get(1).text);
@@ -110,7 +110,7 @@ public class TestCommand extends TestCase {
 		eq.addLeft(new Term("c"));
 		eq.addRight(new Term("5"));
 		
-		Command cmd = new MoveTermLeftToRight(eq, 0);
+		Command cmd = new MoveTerm(eq, eq.left, 0, eq.right, eq.right.size());
 		cmd.apply();
 		assertEquals("b", eq.left.get(0).text);
 		assertEquals("c", eq.left.get(1).text);
@@ -122,7 +122,7 @@ public class TestCommand extends TestCase {
 		assertEquals("c", eq.left.get(2).text);
 		assertEquals("5", eq.right.get(0).text);
 		
-		cmd = new MoveTermLeftToRight(eq, 1);
+		cmd = new MoveTerm(eq, eq.left, 1, eq.right, eq.right.size());
 		cmd.apply();
 		assertEquals("a", eq.left.get(0).text);
 		assertEquals("c", eq.left.get(1).text);

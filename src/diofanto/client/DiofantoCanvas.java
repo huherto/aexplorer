@@ -34,7 +34,6 @@ public class DiofantoCanvas {
 			
 			@Override
 			public void onMouseDown(MouseDownEvent event) {
-				System.out.println("Mouse down");
 				mouseDownOn = root.findBlock(event.getX(), event.getY());
 				if (mouseDownOn != null) {
 					setFocus(mouseDownOn);
