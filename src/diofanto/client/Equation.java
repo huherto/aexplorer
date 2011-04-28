@@ -1,4 +1,4 @@
-package diofanto.client;
+	 	package diofanto.client;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,14 +49,16 @@ public class Equation implements BlockEventHandler {
 
 	private void fillContainer() {
 		container.removeAll();
+		int count = 0;
 		for(Term  term : left) {
-			if (!container.blocks.isEmpty()) {
+			if (count > 0 || term.negative) {
 				if (term.negative)
 					container.add(new TextBlock("-"));
 				else 
 					container.add(new TextBlock("+"));					
 			}
 			container.add(term.block);				
+			count++;
 		}
 		if (left.size() == 0) {
 			Block block = new TextBlock("0");
@@ -64,9 +66,9 @@ public class Equation implements BlockEventHandler {
 			container.add(block);
 		}
 		container.add(equal);
-		int count = 0;
+		count = 0;
 		for(Term  term : right) {
-			if (count > 0) {
+			if (count > 0 || term.negative) {
 				if (term.negative)
 					container.add(new TextBlock("-"));
 				else 
@@ -105,15 +107,11 @@ public class Equation implements BlockEventHandler {
 	public void onBeforeMove(Block block, DiofantoCanvas canvas) {
 		if (dropTargets == null) {
 			Term term = findLeftTerm(block);
-			if (term != null) {
-				dropTargetsForLeftMember(term);		
-				return;
+			if (term == null) {
+				term = findRightTerm(block);
+				Assert.notNull(term);
 			}
-			term = findRightTerm(block);
-			if (term != null) {
-				dropTargetsForRightMember(term);		
-				return;
-			}
+			dropTargetsForTerm(term);
 		}
 	}
 
@@ -129,6 +127,7 @@ public class Equation implements BlockEventHandler {
 	public void onDrop(Block block, DiofantoCanvas canvas) {
 		DropTarget target = closest(block);
 		if (target != null) {
+			System.out.println("apply cmd");
 			target.cmd.apply();
 		}
 		dropTargets = null;				
@@ -136,68 +135,86 @@ public class Equation implements BlockEventHandler {
 		canvas.displayAll();
 	}
 	
-	private void dropTargetsForLeftMember(Term term) {
+	private void dropTargetsForTerm(Term term) {
 		dropTargets = new HashSet<DropTarget>();
-		int idx = left.indexOf(term);
-		for(int i = 0; i < left.size(); i++) {
-			Command cmd = new MoveTerm(this, left, idx, left, i);
-			DropTarget target = new DropTarget(cmd);
-			Block block = left.get(i).block;
-			target.moveLeftTo(block);
-			dropTargets.add(target);
+		// Left side
+		for(Term refTerm:left) {
+			if (term != refTerm) {
+				DropTarget target = moveLeft(term, refTerm);
+				Block block = refTerm.block;
+				target.moveLeftTo(block);
+				dropTargets.add(target);
+			}
 		}
-		if (left.size() > 0) {
-			Command cmd = new MoveTerm(this, left, idx, left, left.size());
-			DropTarget target = new DropTarget(cmd);
-			Block block = left.get(left.size() - 1).block;
-			target.moveLeftTo(block);
-			dropTargets.add(target);			
-		}
-		else {
-			Command cmd = new MoveTerm(this, left, idx, left, left.size());
-			DropTarget target = new DropTarget(cmd);
+		// After right side.
+		{   
+			DropTarget target = appendTerm(term, left);
 			target.moveLeftTo(equal);
 			dropTargets.add(target);
 		}
-		for(int i = 0; i < right.size(); i++) {
-			Command cmd = new MoveTerm(this, left, idx, right, i);
-			DropTarget target = new DropTarget(cmd);
-			Block block = right.get(i).block;
-			target.moveLeftTo(block);
-			dropTargets.add(target);
+		// Right side
+		for(Term refTerm:right) {
+			if (term != refTerm) {
+				DropTarget target = moveLeft(term, refTerm);
+				Block block = refTerm.block;
+				target.moveLeftTo(block);
+				dropTargets.add(target);
+			}
 		}
-		if (right.size() > 0) {
-			Command cmd = new MoveTerm(this, left, idx, right, right.size());
-			DropTarget target = new DropTarget(cmd);
-			Block block = right.get(right.size() - 1).block;
-			target.moveRightTo(block);
-			dropTargets.add(target);			
+		// Far right
+		DropTarget target = appendTerm(term, right);
+		if (right.size() == 0)
+		{
+			target.moveRightTo(equal);
 		}
 		else {
-			Command cmd = new MoveTerm(this, left, idx, right, 0);
-			DropTarget target = new DropTarget(cmd);
-			target.moveRightTo(equal);
-			dropTargets.add(target);			
+			Term lastTerm = right.get(right.size() - 1);
+			target.moveRightTo(lastTerm.block);
 		}
+		dropTargets.add(target);			
 	}
 	
-	private void dropTargetsForRightMember(Term term) {
-		dropTargets = new HashSet<DropTarget>();
-		int idx = right.indexOf(term);
-		for(int i = 0; i < right.size(); i++) {
-			Command cmd = new MoveTerm(this, right, idx, right, i);
-			DropTarget target = new DropTarget(cmd);
-			Block block = right.get(i).block;
-			if (i <= idx)
-				target.moveLeftTo(block);
-			else
-				target.moveRightTo(block);
-			dropTargets.add(target);
+	private DropTarget appendTerm(Term term, List<Term> toList) {
+		List<Term> fromList = left;
+		int fromIdx = fromList.indexOf(term);
+		if (fromIdx < 0) {
+			fromList = right;
+			fromIdx = fromList.indexOf(term);
+			Assert.isTrue(fromIdx >= 0);
 		}
-		Command cmd = new MoveTerm(this, right, idx, left, 0);
-		DropTarget target = new DropTarget(cmd);
-		target.moveLeftTo(equal);
-		dropTargets.add(target);
+		int toIdx = toList.size();
+		if (fromList == toList) {
+			if (fromIdx < toIdx) {
+				toIdx--;
+				Assert.isTrue(toIdx >= 0);
+			}
+		}
+		Command cmd = new MoveTerm(this, fromList, fromIdx, toList, toIdx);
+		return new DropTarget(cmd);
+	}
+
+	private DropTarget moveLeft(Term term, Term refTerm) {
+		List<Term> fromList = left;
+		int fromIdx = fromList.indexOf(term);
+		if (fromIdx < 0) {
+			fromList = right;
+			fromIdx = fromList.indexOf(term);
+			Assert.isTrue(fromIdx >= 0);
+		}
+		List<Term> toList = left;
+		int toIdx = toList.indexOf(refTerm);
+		if (toIdx < 0) {
+			toList = right;
+			toIdx = toList.indexOf(refTerm);
+			Assert.isTrue(toIdx >= 0);
+		}
+		if (fromList == toList) {
+			if (fromIdx < toIdx) {
+				toIdx--;
+			}
+		}
+		Command cmd = new MoveTerm(this, fromList, fromIdx, toList, toIdx);
+		return new DropTarget(cmd);
 	}
 
 	private DropTarget closest(Block block) {
@@ -206,7 +223,7 @@ public class Equation implements BlockEventHandler {
 		DropTarget closest = null;
 		double minDistance = Double.MAX_VALUE;
 		for(DropTarget target:dropTargets) {
-			double distance = block.centerDistance(target);
+			double distance = block.centerXDistance(target);
 			if (distance < minDistance) {
 				minDistance = distance;
 				closest = target;
@@ -214,5 +231,4 @@ public class Equation implements BlockEventHandler {
 		}
 		return closest;
 	}
-	
 }

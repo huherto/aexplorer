@@ -235,5 +235,11 @@ public abstract class Block {
 		
 		return distance(centerX, centerY, blockCenterX, blockCenterY);
 	}
+	
+	double centerXDistance(Block block) {
+		double centerX = x + width/2;
+		double blockCenterX = block.x + block.width/2;
+		return Math.abs(centerX - blockCenterX);
+	}
 
 }
