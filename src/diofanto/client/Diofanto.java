@@ -28,15 +28,6 @@ public class Diofanto implements EntryPoint {
 		//RootPanel.get().add(canvas);
 		DiofantoCanvas diofantoCanvas = new DiofantoCanvas(canvas);
 		
-		
-/*		diofantoCanvas.createTextBlocK("height");
-		diofantoCanvas.createTextBlocK("+");
-		diofantoCanvas.createTextBlocK("base");
-		diofantoCanvas.createTextBlocK("=");
-		diofantoCanvas.createTextBlocK("5");
-		
-		diofantoCanvas.layout();
-*/		
 		Equation eq = new Equation();
 		eq.addLeft(new Term("a"));
 		eq.addLeft(new Term("b"));

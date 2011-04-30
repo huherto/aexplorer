@@ -13,7 +13,7 @@ public class DiofantoCanvas {
 	
 	protected final Canvas canvas;
 
-	static final int canvasWidth  = 400;
+	static final int canvasWidth  = 500;
 	static final int canvasHeight = 400;
 	
 	Container root = new Container();
